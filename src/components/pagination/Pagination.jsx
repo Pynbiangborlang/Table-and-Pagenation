@@ -41,8 +41,24 @@ const Pagination = ({
         <span>
           {currentPage} of {totalRows / rowsPerPage}
         </span>
-        <a onClick={() => paginate(currentPage - 1)}>&lt;</a>
-        <a onClick={() => paginate(currentPage + 1)}>&gt;</a>
+        <a
+          onClick={() =>
+            currentPage === 1
+              ? paginate(totalRows / rowsPerPage) // go to last page
+              : paginate(currentPage - 1)
+          }
+        >
+          &lt;
+        </a>
+        <a
+          onClick={() =>
+            currentPage === totalRows / rowsPerPage
+              ? paginate(1) //go to first page
+              : paginate(currentPage + 1)
+          }
+        >
+          &gt;
+        </a>
       </div>
     </div>
   );
