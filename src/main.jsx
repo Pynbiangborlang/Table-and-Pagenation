@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <Posts />
     <hr></hr>
     <br></br>
-    <User />
+    {/* <User /> */}
 
     {/* <UseContextComponent /> */}
   </React.StrictMode>

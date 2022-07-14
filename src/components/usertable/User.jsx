@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import "./user.css";
 import { Table } from "../table/Table";
+import ReactTable from "../tanstacktable/ReactTable";
 
 const User = () => {
   const [userData, setUserData] = useState([]);
@@ -16,20 +17,20 @@ const User = () => {
   const columns = useMemo(
     () => [
       {
-        Header: "Id",
-        accessor: "id",
+        header: "Id",
+        accessorKey: "id",
       },
       {
-        Header: "Name",
-        accessor: "name",
+        header: "Name",
+        accessorKey: "name",
       },
       {
-        Header: "UserName",
-        accessor: "username",
+        header: "UserName",
+        accessorKey: "username",
       },
       {
-        Header: "Email",
-        accessor: "email",
+        header: "Email",
+        accessorKey: "email",
       },
     ],
     []
@@ -39,12 +40,13 @@ const User = () => {
   return (
     <>
       <h1>Users Details</h1>
-      <Table
+      {/* <Table
         columns={columns}
         data={data}
         showGlobalFilter={true}
         className=""
-      />
+      /> */}
+      <ReactTable columns={columns} data={data} />
     </>
   );
 };

@@ -33,7 +33,6 @@ export const Table = ({ columns, data, className, showGlobalFilter }) => {
     useGlobalFilter
   );
 
-  const { globalFilter } = state;
   return (
     <>
       {showGlobalFilter && (

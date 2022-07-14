@@ -7,6 +7,7 @@ import axios from "axios";
 import "./posts.css";
 import Pagination from "../pagination/Pagination";
 import { Table } from "../table/Table";
+import ReactTable from "../tanstacktable/ReactTable";
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
@@ -17,19 +18,38 @@ const Posts = () => {
   const [postsPerPage, setPostPerPage] = useState(10);
   const [options, setOptions] = useState([5, 10, 20, 25]);
 
+  // const columns = useMemo(
+  //   () => [
+  //     {
+  //       Header: "Id",
+  //       accessor: "id",
+  //     },
+  //     {
+  //       Header: "Title",
+  //       accessor: "title",
+  //     },
+  //     {
+  //       Header: "Description",
+  //       accessor: "body",
+  //     },
+  //   ],
+  //   []
+  // );
+
+  //columnsDef for react table v8
   const columns = useMemo(
     () => [
       {
-        Header: "Id",
-        accessor: "id",
+        header: "Id",
+        accessorKey: "id",
       },
       {
-        Header: "Title",
-        accessor: "title",
+        header: "Title",
+        accessorKey: "title",
       },
       {
-        Header: "Description",
-        accessor: "body",
+        header: "Description",
+        accessorKey: "body",
       },
     ],
     []
@@ -53,12 +73,13 @@ const Posts = () => {
   return (
     <div>
       <h1>My Posts</h1>
-      <Table
+      {/* <Table
         columns={columns}
         data={filterActivate ? filteredPosts : currentPosts}
         className={""}
         showGlobalFilter={true}
-      />
+      /> */}
+      <ReactTable columns={columns} data={currentPosts} />
       <Pagination
         setRowsPerPage={(newvalue) => setPostPerPage(newvalue)}
         currentPage={currentPage}
