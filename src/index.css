@@ -12,3 +12,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+.header {
+  height: 50px;
+  background-color: darksalmon;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+  text-align: center;
+}

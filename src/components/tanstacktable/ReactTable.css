@@ -1,0 +1,9 @@
+.table-striped tr:nth-child(even) {
+  background: lightgray;
+}
+.table-striped tr {
+  border-block: 1px solid black;
+}
+.table {
+  border-spacing: 0px;
+}

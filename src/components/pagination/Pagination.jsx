@@ -14,7 +14,7 @@
  * paginate->its a function for handling page change
  */
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 const Pagination = ({
   currentPage,

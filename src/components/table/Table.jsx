@@ -12,6 +12,7 @@
 import React, { useState } from "react";
 import { useGlobalFilter, useTable } from "react-table";
 import { GlobalFilter } from "./GlobalFilter";
+import generateExcel from "zipcelx";
 
 export const Table = ({ columns, data, className, showGlobalFilter }) => {
   // Use the state and functions returned from useTable to build your UI
@@ -33,11 +34,85 @@ export const Table = ({ columns, data, className, showGlobalFilter }) => {
     useGlobalFilter
   );
 
+  function getHeader(column) {
+    if (column.totalVisibleHeaderCount === 1) {
+      return [
+        {
+          value: column.Header,
+          type: "string",
+        },
+      ];
+    } else {
+      const span = [...Array(column.totalVisibleHeaderCount - 1)].map((x) => ({
+        value: "",
+        type: "string",
+      }));
+      return [
+        {
+          value: column.Header,
+          type: "string",
+        },
+        ...span,
+      ];
+    }
+  }
+
+  function getExcel() {
+    const config = {
+      filename: "general-ledger-Q1",
+      sheet: {
+        data: [],
+      },
+    };
+
+    const dataSet = config.sheet.data;
+
+    // review with one level nested config
+    // HEADERS
+    headerGroups.forEach((headerGroup) => {
+      const headerRow = [];
+      if (headerGroup.headers) {
+        headerGroup.headers.forEach((column) => {
+          headerRow.push(...getHeader(column));
+        });
+      }
+
+      dataSet.push(headerRow);
+    });
+
+    // FILTERED ROWS
+    if (rows.length > 0) {
+      rows.forEach((row) => {
+        const dataRow = [];
+        console.log("row values", row.values);
+
+        Object.values(row.values).forEach((value) =>
+          dataRow.push({
+            value,
+            type: typeof value === "number" ? "number" : "string",
+          })
+        );
+
+        dataSet.push(dataRow);
+      });
+    } else {
+      dataSet.push([
+        {
+          value: "No data",
+          type: "string",
+        },
+      ]);
+    }
+
+    return generateExcel(config);
+  }
+
   return (
     <>
       {showGlobalFilter && (
         <GlobalFilter setFilter={(value) => setGlobalFilter(value)} />
       )}
+      <button onClick={getExcel}>Get Exel</button>
       <table
         className={
           className === undefined
@@ -58,7 +133,7 @@ export const Table = ({ columns, data, className, showGlobalFilter }) => {
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {rows.map((row, i) => {
+          {rows.map((row) => {
             prepareRow(row);
             return (
               <tr {...row.getRowProps()}>

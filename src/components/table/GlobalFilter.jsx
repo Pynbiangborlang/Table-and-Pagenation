@@ -7,8 +7,8 @@ export const GlobalFilter = ({ setFilter }) => {
     setFilter(value);
   }, 500);
   return (
-    <div>
-      <span>Search: </span>
+    <>
+      <label>Search: </label>
       <input
         value={value || ""}
         onChange={(e) => {
@@ -16,6 +16,6 @@ export const GlobalFilter = ({ setFilter }) => {
           debounced(value);
         }}
       />
-    </div>
+    </>
   );
 };

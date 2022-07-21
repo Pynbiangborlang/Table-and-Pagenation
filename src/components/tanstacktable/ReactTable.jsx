@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-// @ts-ignore
+import "./ReactTable.css";
+import * as XLSX from "xlsx/xlsx.mjs";
+
 import {
   flexRender,
   useReactTable,
@@ -8,7 +10,7 @@ import {
 } from "@tanstack/react-table";
 import { DebouncedInput } from "./DebouncedInput";
 
-const ReactTable = ({ columns, data, className }) => {
+const ReactTable = ({ columns, data, className = "" }) => {
   const [globalFilter, setGlobalFilter] = useState("");
 
   const table = useReactTable({
@@ -20,8 +22,16 @@ const ReactTable = ({ columns, data, className }) => {
     getFilteredRowModel: getFilteredRowModel(),
     getCoreRowModel: getCoreRowModel(),
   });
-  console.log("header groups-", table.getHeaderGroups());
-  console.log("getRowModel ", table.getRowModel());
+
+  // function to export download excel file
+  const exportFile = () => {
+    const table_elt = document.getElementsByTagName("table");
+    const wb = XLSX.utils.table_to_book(table_elt[0]);
+
+    // Package and Release Data (`writeFile` tries to write and save an XLSB file)
+    // @ts-ignore
+    XLSX.writeFile(wb, "Report.xlsb");
+  };
 
   return (
     <>
@@ -31,27 +41,19 @@ const ReactTable = ({ columns, data, className }) => {
         className="p-2 font-lg shadow border border-block"
         placeholder="Search all columns..."
       />
-      <table
-        className={
-          className === undefined
-            ? "table table-striped"
-            : className === ""
-            ? "table table-striped"
-            : className
-        }
-      >
+      <button onClick={exportFile}>Export</button>
+      <table className={`table table-striped ${className}`}>
         <thead>
           <tr>
             {table.getHeaderGroups()[0].headers.map((header) => (
-              <th>{header.id}</th>
+              <th key={header.id}>{header.id}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr id={row.id}>
+            <tr key={row.id}>
               {row.getVisibleCells().map((cell) => {
-                console.log("cell--", cell);
                 return (
                   <td key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

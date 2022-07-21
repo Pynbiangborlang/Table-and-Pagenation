@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import "./user.css";
-import { Table } from "../table/Table";
-import ReactTable from "../tanstacktable/ReactTable";
+import { Table } from "../../components/table/Table";
+import ReactTable from "../../components/tanstacktable/ReactTable";
 
 const User = () => {
   const [userData, setUserData] = useState([]);
 
   useEffect(() => {
     axios.get("https://jsonplaceholder.typicode.com/users").then((res) => {
-      console.log(res.data);
       setUserData(res.data);
     });
   }, []);

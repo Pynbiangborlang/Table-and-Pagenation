@@ -5,9 +5,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import "./posts.css";
-import Pagination from "../pagination/Pagination";
-import { Table } from "../table/Table";
-import ReactTable from "../tanstacktable/ReactTable";
+import Pagination from "../../components/pagination/Pagination";
+import { Table } from "../../components/table/Table";
+import ReactTable from "../../components/tanstacktable/ReactTable";
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
@@ -18,46 +18,45 @@ const Posts = () => {
   const [postsPerPage, setPostPerPage] = useState(10);
   const [options, setOptions] = useState([5, 10, 20, 25]);
 
-  // const columns = useMemo(
-  //   () => [
-  //     {
-  //       Header: "Id",
-  //       accessor: "id",
-  //     },
-  //     {
-  //       Header: "Title",
-  //       accessor: "title",
-  //     },
-  //     {
-  //       Header: "Description",
-  //       accessor: "body",
-  //     },
-  //   ],
-  //   []
-  // );
-
-  //columnsDef for react table v8
   const columns = useMemo(
     () => [
       {
-        header: "Id",
-        accessorKey: "id",
+        Header: "Id",
+        accessor: "id",
       },
       {
-        header: "Title",
-        accessorKey: "title",
+        Header: "Title",
+        accessor: "title",
       },
       {
-        header: "Description",
-        accessorKey: "body",
+        Header: "Description",
+        accessor: "body",
       },
     ],
     []
   );
 
+  //columnsDef for react table v8
+  // const columns = useMemo(
+  //   () => [
+  //     {
+  //       header: "Id",
+  //       accessorKey: "id",
+  //     },
+  //     {
+  //       header: "Title",
+  //       accessorKey: "title",
+  //     },
+  //     {
+  //       header: "Description",
+  //       accessorKey: "body",
+  //     },
+  //   ],
+  //   []
+  // );
+
   useEffect(() => {
     axios.get("https://jsonplaceholder.typicode.com/posts").then((response) => {
-      console.log(response.data);
       setPosts(response.data);
     });
   }, []);
@@ -73,13 +72,15 @@ const Posts = () => {
   return (
     <div>
       <h1>My Posts</h1>
-      {/* <Table
+      <Table
         columns={columns}
         data={filterActivate ? filteredPosts : currentPosts}
         className={""}
         showGlobalFilter={true}
-      /> */}
-      <ReactTable columns={columns} data={currentPosts} />
+      />
+
+      {/* <ReactTable columns={columns} data={currentPosts} /> */}
+      <br></br>
       <Pagination
         setRowsPerPage={(newvalue) => setPostPerPage(newvalue)}
         currentPage={currentPage}
