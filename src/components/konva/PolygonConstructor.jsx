@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Circle, Layer, Line, Stage } from "react-konva";
+import { Circle, Layer, Line, Rect, Stage } from "react-konva";
 
 export const PolygonConstructor = () => {
   const [isDrawing, setIsDrawing] = useState(false);
@@ -10,28 +10,24 @@ export const PolygonConstructor = () => {
   const [isComplete, setIsComplete] = useState(false);
   const circleRef = useRef(null);
 
-  useEffect(() => {
-    console.log("circle ref");
-    console.log(circleRef.current);
-  }, []);
-
   const handleClick = (e) => {
-    let pos = e.target.getStage().getPointerPosition();
-    if (!isDrawing) {
-      setIsDrawing(true);
-      setCircle({ x: pos.x, y: pos.y, radius: 10 });
-      setPoints([pos.x, pos.y]);
-      return;
+    if (!isComplete) {
+      console.log(e);
+      let pos = e.evt;
+      console.log("nga dei u click function");
+      if (!isDrawing) {
+        setIsComplete(false);
+        setIsDrawing(true);
+        setCircle({ x: pos.offsetX, y: pos.offsetY, radius: 10 });
+        setPoints([pos.offsetX, pos.offsetY]);
+        return;
+      }
+
+      console.log(points);
+
+      setPoints([...points, pos.offsetX, pos.offsetY]);
+      setMouseDrag(false);
     }
-    let x = circleRef.current.attrs.x;
-    let y = circleRef.current.attrs.y;
-    let r = circleRef.current.attrs.r;
-
-    console.log("outside close");
-    console.log(points);
-
-    setPoints([...points, pos.x, pos.y]);
-    setMouseDrag(false);
   };
 
   //when mouse drags show line
@@ -41,13 +37,13 @@ export const PolygonConstructor = () => {
     }
 
     setMouseDrag(true);
-    let pos = e.target.getStage().getPointerPosition();
+    let pos = e.evt;
 
     setnextPoint([
       points[points.length - 2],
       points[points.length - 1],
-      pos.x,
-      pos.y,
+      pos.offsetX,
+      pos.offsetY,
     ]);
   };
 
@@ -57,50 +53,54 @@ export const PolygonConstructor = () => {
     setIsDrawing(false);
     setMouseDrag(false);
     setIsComplete(true);
+    console.log("******** Polygon Points**********\n");
+    console.log(JSON.stringify(points));
   };
   return (
-    <Stage
-      width={1000}
-      height={1000}
-      onClick={handleClick}
-      onMouseMove={handleMove}
-    >
-      <Layer>
+    <>
+      <Rect
+        x={0}
+        y={0}
+        width={window.innerWidth}
+        height={window.innerHeight}
+        onClick={handleClick}
+        onMouseMove={handleMove}
+      />
+      <Line
+        opacity={1}
+        points={points}
+        stroke="#df4b26"
+        strokeWidth={2}
+        tension={0}
+        lineCap="round"
+        lineJoin="round"
+        closed={isComplete}
+      />
+
+      {points[0] && !isComplete && (
+        <Circle
+          ref={circleRef}
+          x={circle.x}
+          y={circle.y}
+          radius={circle.radius}
+          stroke="black"
+          onClick={handleClose}
+          onMouseOver={(e) => e.target.setFill("green")}
+          onMouseOut={(e) => e.target.setFill("transparent")}
+        />
+      )}
+
+      {mouseDrag && (
         <Line
-          opacity={1}
-          points={points}
+          points={nextPoint}
           fill="red"
           stroke="#df4b26"
           strokeWidth={2}
           tension={0}
           lineCap="round"
           lineJoin="round"
-          closed={isComplete}
         />
-
-        {!isComplete && (
-          <Circle
-            ref={circleRef}
-            x={circle.x}
-            y={circle.y}
-            radius={circle.radius}
-            stroke="black"
-            onClick={handleClose}
-          />
-        )}
-
-        {mouseDrag && (
-          <Line
-            points={nextPoint}
-            fill="red"
-            stroke="#df4b26"
-            strokeWidth={2}
-            tension={0}
-            lineCap="round"
-            lineJoin="round"
-          />
-        )}
-      </Layer>
-    </Stage>
+      )}
+    </>
   );
 };

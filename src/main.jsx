@@ -10,6 +10,7 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import ImageAndSvg from "./components/konva/ImageAndSvg";
 import { Canvas } from "./screens/canvas";
 import { PolygonConstructor } from "./components/konva/PolygonConstructor";
+import { Draw } from "./screens/draw/Draw";
 
 // @ts-ignore
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -20,10 +21,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Link to="/users">Users</Link>&nbsp;|
         <Link to="/canvasshapes">Canvas Shapes</Link>|
         <Link to="/imageandsvg">Image and SVG</Link>|
-        <Link to="/img">
-          Reusable Image component and Aibor's poly constructor
-        </Link>
-        |<Link to="/draw">Drawing Polygon</Link>|
+        <Link to="/img">Reusable Image</Link>|
+        <Link to="/draw">Drawing Polygon</Link>|
       </div>
       <br></br>
       <Routes>
@@ -32,7 +31,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/canvasshapes" element={<App />} />
         <Route path="/imageandsvg" element={<ImageAndSvg />} />
         <Route path="/img" element={<Canvas />} />
-        <Route path="/draw" element={<PolygonConstructor />} />
+        <Route path="/draw" element={<Draw />} />
       </Routes>
     </BrowserRouter>
   </>
