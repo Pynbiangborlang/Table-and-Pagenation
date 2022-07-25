@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { Circle, Line, Rect } from "react-konva";
 
 export const PolygonConstructor = () => {
-  const [nextPoint, setnextPoint] = useState([]);
+  const [nextPoint, setnextPoint] = useState([0, 0]);
   const [points, setPoints] = useState([]);
   const [isComplete, setIsComplete] = useState(false);
   const circleRef = useRef(null);

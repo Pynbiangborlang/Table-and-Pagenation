@@ -11,6 +11,8 @@ import ImageAndSvg from "./components/konva/ImageAndSvg";
 import { Canvas } from "./screens/canvas";
 import { PolygonConstructor } from "./components/konva/PolygonConstructor";
 import { Draw } from "./screens/draw/Draw";
+import { Gallery } from "./screens/galary/Gallery";
+import { LearningSwr } from "./screens/swr/LearningSwr";
 
 // @ts-ignore
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -23,6 +25,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Link to="/imageandsvg">Image and SVG</Link>|
         <Link to="/img">Reusable Image</Link>|
         <Link to="/draw">Drawing Polygon</Link>|
+        <Link to="/gallery">Gallery</Link>|<Link to="/todos">Todo Lists</Link>|
       </div>
       <br></br>
       <Routes>
@@ -32,6 +35,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/imageandsvg" element={<ImageAndSvg />} />
         <Route path="/img" element={<Canvas />} />
         <Route path="/draw" element={<Draw />} />
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/todos" element={<LearningSwr />} />
       </Routes>
     </BrowserRouter>
   </>
