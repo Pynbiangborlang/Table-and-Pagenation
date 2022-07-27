@@ -20,13 +20,3 @@ export const Draw = () => {
     </Stage>
   );
 };
-{
-  /* <PolygonConstructor1
-          // construct only line, not polygon
-          lineOnly={true}
-          scale={1}
-          onComplete={(points) => {
-            console.log("*** POLYGON POINTS *****", points);
-          }}
-        /> */
-}

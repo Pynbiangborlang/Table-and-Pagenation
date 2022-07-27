@@ -1,5 +1,5 @@
 import React from "react";
-import { useFetch } from "./useUser";
+import { useFetch } from "./useFetch";
 
 export const LearningSwr = () => {
   const { data, error } = useFetch(

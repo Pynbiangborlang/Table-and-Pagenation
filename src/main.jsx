@@ -13,6 +13,7 @@ import { PolygonConstructor } from "./components/konva/PolygonConstructor";
 import { Draw } from "./screens/draw/Draw";
 import { Gallery } from "./screens/galary/Gallery";
 import { LearningSwr } from "./screens/swr/LearningSwr";
+import { Todos } from "./screens/swr/Todos";
 
 // @ts-ignore
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -26,6 +27,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Link to="/img">Reusable Image</Link>|
         <Link to="/draw">Drawing Polygon</Link>|
         <Link to="/gallery">Gallery</Link>|<Link to="/todos">Todo Lists</Link>|
+        <Link to="/addtodos">My Todo</Link>|
       </div>
       <br></br>
       <Routes>
@@ -37,6 +39,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/draw" element={<Draw />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/todos" element={<LearningSwr />} />
+        <Route path="/addtodos" element={<Todos />} />
       </Routes>
     </BrowserRouter>
   </>
