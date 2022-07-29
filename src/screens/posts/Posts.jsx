@@ -82,7 +82,7 @@ const Posts = () => {
       {/* <ReactTable columns={columns} data={currentPosts} /> */}
       <br></br>
       <Pagination
-        setRowsPerPage={(newvalue) => setPostPerPage(newvalue)}
+        setRowsPerPage={(newValue) => setPostPerPage(newValue)}
         currentPage={currentPage}
         rowsPerPage={postsPerPage}
         options={options}

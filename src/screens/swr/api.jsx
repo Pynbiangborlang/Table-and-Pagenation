@@ -1,8 +1,5 @@
 import axios from "axios";
 
-let todos = [{ id: 1, name: "task 1" }];
-const delay = () => new Promise((res) => setTimeout(() => res(), 800));
-
 export async function getTodos() {
   const data = await axios
     .get("http://localhost:8000/api/todo")

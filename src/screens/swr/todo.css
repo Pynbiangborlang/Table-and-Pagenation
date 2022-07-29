@@ -3,7 +3,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
 }
 .td-form-container {
@@ -26,12 +26,11 @@
   height: 50px;
   margin: 2% 0px;
   border: 1px solid whitesmoke;
-  box-shadow: 5px 10px darkgray;
   text-align: center;
   border-radius: 5px;
 }
 .td-input {
-  width: 90%;
+  width: 94%;
   height: 25px;
 }
 .td-form {
@@ -41,7 +40,8 @@
   cursor: pointer;
   height: 60px;
   margin: 5px 0px;
-  z-index: 2;
+  box-shadow: 5px 10px darkgray;
+  z-index: 1;
 }
 .td-button {
   height: 30px;

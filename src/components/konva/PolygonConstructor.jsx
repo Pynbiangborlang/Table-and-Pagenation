@@ -1,20 +1,60 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Circle, Line, Rect } from "react-konva";
+import Konva from "konva";
+import { Circle, Line, Rect, Transformer, Shape } from "react-konva";
 
-export const PolygonConstructor = () => {
+export const PolygonConstructor = ({ scale, callBack }) => {
+  let newScale = scale ? scale : 1;
   const [nextPoint, setnextPoint] = useState([0, 0]);
   const [points, setPoints] = useState([]);
+  const [polygon, setPolygon] = useState([]);
   const [isComplete, setIsComplete] = useState(false);
-  const circleRef = useRef(null);
+  const [selectId, selectShape] = useState(null);
 
+  useEffect(() => {
+    callBack(polygon);
+    setPoints([]);
+  }, [polygon]);
+
+  useEffect(() => {
+    const listener = (e) => {
+      // console.log(e);
+      let length = points.length;
+      setPoints((points) => {
+        points.pop();
+        points.pop();
+        return points;
+      });
+      setnextPoint([]);
+    };
+
+    document.addEventListener("keydown", listener);
+
+    return () => {
+      document.removeEventListener("keydown", listener);
+    };
+  }, []);
   const handleClick = (e) => {
+    setIsComplete(false);
     if (!isComplete) {
       console.log(e);
       let pos = e.evt;
       console.log("nga dei u click function");
       console.log(JSON.stringify(nextPoint));
-      setPoints(points.concat([e.evt.offsetX, e.evt.offsetY]));
+      // if (
+      //   pos.offsetX !== points[points.length - 1].x &&
+      //   pos.offsetY !== points[points.length - 1].y &&
+      //   points[0]
+      // ) {
+      setPoints([
+        ...points,
+        {
+          id: Date.now(),
+          x: pos.offsetX * newScale,
+          y: pos.offsetY * newScale,
+        },
+      ]);
       console.log(points);
+      // }
     }
   };
 
@@ -24,17 +64,26 @@ export const PolygonConstructor = () => {
       return;
     }
     let pos = e.evt;
-    setnextPoint([pos.offsetX, pos.offsetY]);
+    setnextPoint([pos.offsetX * newScale, pos.offsetY * newScale]);
   };
 
   // when circle click closed the line
   const handleClose = (e) => {
+    setPolygon({
+      id: Date.now(),
+      points: points.concat({
+        id: Date.now(),
+        x: e.target.attrs.x * newScale,
+        y: e.target.attrs.y * newScale,
+      }),
+    });
+    setPoints([]);
     setnextPoint([]);
-    setPoints(points.concat([e.target.attrs.x, e.target.attrs.y]));
     setIsComplete(true);
     console.log("******** Polygon Points**********\n");
     console.log(JSON.stringify(points));
   };
+
   return (
     <>
       <Rect
@@ -47,7 +96,7 @@ export const PolygonConstructor = () => {
       />
       <Line
         opacity={1}
-        points={points.concat(nextPoint)}
+        points={points.flatMap((point) => [point.x, point.y]).concat(nextPoint)}
         stroke="#df4b26"
         strokeWidth={2}
         tension={0}
@@ -58,9 +107,8 @@ export const PolygonConstructor = () => {
 
       {points[0] && !isComplete && (
         <Circle
-          ref={circleRef}
-          x={points[0]}
-          y={points[1]}
+          x={points[0].x}
+          y={points[0].y}
           radius={10}
           stroke="black"
           onClick={handleClose}
@@ -68,18 +116,6 @@ export const PolygonConstructor = () => {
           onMouseOut={(e) => e.target.setFill("transparent")}
         />
       )}
-
-      {/* {mouseDrag && (
-        <Line
-          points={nextPoint}
-          fill="red"
-          stroke="#df4b26"
-          strokeWidth={2}
-          tension={0}
-          lineCap="round"
-          lineJoin="round"
-        />
-      )} */}
     </>
   );
 };
