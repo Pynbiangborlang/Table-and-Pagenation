@@ -10,6 +10,9 @@ const Anchors = ({ anchors, id, callBack }) => {
     }
     return lines;
   });
+
+  const [path, setPath] = useState({ first: [], middle: [], last: [] });
+  const [shouldShowPath, setShowPath] = useState(false);
   const handleDrag = ({ id, x, y }) => {
     let newlines = lines;
     for (let i = 0; i < lines.length; i++) {
@@ -18,16 +21,36 @@ const Anchors = ({ anchors, id, callBack }) => {
         newlines[0][0].y = y;
         newlines[newlines.length - 1][1].x = x;
         newlines[newlines.length - 1][1].y = y;
+        break;
       }
       if (i === id) {
-        newlines[i][1].x = x;
-        newlines[i][1].y = y;
-        newlines[i + 1][0].x = x;
-        newlines[i + 1][0].y = y;
+        newlines[i - 1][1].x = x;
+        newlines[i - 1][1].y = y;
+        newlines[i][0].x = x;
+        newlines[i][0].y = y;
+        break;
       }
     }
 
-    setLines(newlines);
+    setLines([...newlines]);
+  };
+
+  const showPath = (i, e) => {
+    const newPath = path;
+    if (i === 0) {
+      newPath.first = [
+        lines[lines.length - 1][0].x,
+        lines[lines.length - 1][0].y,
+      ];
+      newPath.last = [lines[1][0].x, lines[1][0].y];
+      newPath.middle = [e.target.attrs.x, e.target.attrs.y];
+    } else {
+      newPath.first = [lines[i - 1][0].x, lines[i - 1][0].y];
+      newPath.last = [lines[i][1].x, lines[i][1].y];
+      newPath.middle = [e.target.attrs.x, e.target.attrs.y];
+    }
+
+    return newPath;
   };
   return (
     <Group>
@@ -40,23 +63,31 @@ const Anchors = ({ anchors, id, callBack }) => {
             key={anchor.id}
             x={anchor.x}
             y={anchor.y}
-            radius={10}
+            radius={5}
             stroke="blue"
             draggable
+            onMouseDown={() => setShowPath(true)}
             onDragStart={(e) => {
               console.log("anchor", e);
-              handleDrag({ id: i, x: e.evt.offsetX, y: e.evt.offsetY });
+              setPath({ ...showPath(i, e) });
+              // handleDrag({ id: i, x: e.target.attrs.x, y: e.target.attrs.y });
 
               // callBack({
               //   id: id,
               //   point: { id: anchor.id, x: e.evt.offsetX, y: e.evt.offsetY },
               // });
             }}
+            onDragEnd={(e) => {
+              setPath({ first: [], middle: [], last: [] });
+              setShowPath(false);
+              handleDrag({ id: i, x: e.target.attrs.x, y: e.target.attrs.y });
+            }}
           />
         );
       })}
       {lines.map((line, i) => (
         <Line
+          key={i}
           points={line.flatMap((point) => [point.x, point.y])}
           stroke="blue"
           lineCap="round"
@@ -64,6 +95,12 @@ const Anchors = ({ anchors, id, callBack }) => {
           strokeWidth={2}
         />
       ))}
+      {shouldShowPath && (
+        <Line
+          stroke="red"
+          points={path.first.concat(path.middle).concat(path.last)}
+        />
+      )}
     </Group>
   );
 };

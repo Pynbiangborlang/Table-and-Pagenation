@@ -9,7 +9,7 @@ import {
   usePolygonSetter,
 } from "../../components/konva/lib/context/PolyconContextProvider";
 
-export const Draw = () => {
+export const Draw = ({ isMultiple }) => {
   const [polygons, setPolygons] = useState([]);
   const [selectedId, selectShape] = useState(null);
   const [isUpdate, setIsupdate] = useState(false);
@@ -26,24 +26,40 @@ export const Draw = () => {
         <PolygonConstructor
           scale={1}
           callBack={(polygon) => {
-            setPolygons([...polygons, polygon]);
+            debugger;
+            isMultiple
+              ? setPolygons([...polygons, polygon])
+              : setPolygons([polygon]);
             setIsupdate(true);
           }}
         />
-        {polygons[1] &&
-          polygons.map((polygon, i) => (
-            <Polygon
-              key={i}
-              isSelected={polygon.id === selectedId}
-              polygon={polygon}
-              onSelect={() => {
-                selectShape(polygon.id);
-              }}
-              onChange={(newPoint) => {
-                setPolygons(editPolygon(newPoint, polygons));
-              }}
-            />
-          ))}
+        {isMultiple
+          ? polygons[1] &&
+            polygons.map((polygon, i) => (
+              <Polygon
+                key={i}
+                isSelected={polygon.id === selectedId}
+                polygon={polygon}
+                onSelect={() => {
+                  selectShape(polygon.id);
+                }}
+                onChange={(newPoint) => {
+                  setPolygons(editPolygon(newPoint, polygons));
+                }}
+              />
+            ))
+          : polygons[0] && (
+              <Polygon
+                isSelected={polygons[0].id === selectedId}
+                polygon={polygons[0]}
+                onSelect={() => {
+                  selectShape(polygons[0].id);
+                }}
+                onChange={(newPoint) => {
+                  setPolygons(editPolygon(newPoint, polygons));
+                }}
+              />
+            )}
       </Layer>
     </Stage>
   );

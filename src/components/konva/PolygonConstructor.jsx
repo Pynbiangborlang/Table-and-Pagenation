@@ -15,17 +15,27 @@ export const PolygonConstructor = ({ scale, callBack }) => {
     setPoints([]);
   }, [polygon]);
 
+  const listener = (e) => {
+    // console.log(e);
+    let length = points.length;
+    setPoints((points) => {
+      points.pop();
+      points.pop();
+      return points;
+    });
+    setnextPoint([]);
+  };
   useEffect(() => {
-    const listener = (e) => {
-      // console.log(e);
-      let length = points.length;
-      setPoints((points) => {
-        points.pop();
-        points.pop();
-        return points;
-      });
-      setnextPoint([]);
-    };
+    // const listener = (e) => {
+    //   // console.log(e);
+    //   let length = points.length;
+    //   setPoints((points) => {
+    //     points.pop();
+    //     points.pop();
+    //     return points;
+    //   });
+    //   setnextPoint([]);
+    // };
 
     document.addEventListener("keydown", listener);
 
@@ -34,17 +44,11 @@ export const PolygonConstructor = ({ scale, callBack }) => {
     };
   }, []);
   const handleClick = (e) => {
-    setIsComplete(false);
     if (!isComplete) {
       console.log(e);
       let pos = e.evt;
       console.log("nga dei u click function");
       console.log(JSON.stringify(nextPoint));
-      // if (
-      //   pos.offsetX !== points[points.length - 1].x &&
-      //   pos.offsetY !== points[points.length - 1].y &&
-      //   points[0]
-      // ) {
       setPoints([
         ...points,
         {
@@ -54,7 +58,6 @@ export const PolygonConstructor = ({ scale, callBack }) => {
         },
       ]);
       console.log(points);
-      // }
     }
   };
 
@@ -69,6 +72,7 @@ export const PolygonConstructor = ({ scale, callBack }) => {
 
   // when circle click closed the line
   const handleClose = (e) => {
+    document.removeEventListener("keydown", listener);
     setPolygon({
       id: Date.now(),
       points: points.concat({

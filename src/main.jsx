@@ -42,7 +42,7 @@ ReactDOM.render(
           path="/draw"
           element={
             <PolyconContextProvider>
-              <Draw />
+              <Draw isMultiple={false} />
             </PolyconContextProvider>
           }
         />
