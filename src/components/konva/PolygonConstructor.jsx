@@ -2,22 +2,24 @@ import React, { useRef, useState, useEffect } from "react";
 import Konva from "konva";
 import { Circle, Line, Rect, Transformer, Shape } from "react-konva";
 
-export const PolygonConstructor = ({ scale, callBack }) => {
+export const PolygonConstructor = ({ scale, callBack, isMultiple, isEditing }) => {
   let newScale = scale ? scale : 1;
   const [nextPoint, setnextPoint] = useState([0, 0]);
   const [points, setPoints] = useState([]);
-  const [polygon, setPolygon] = useState([]);
+  const [polygon, setPolygon] = useState();
   const [isComplete, setIsComplete] = useState(false);
   const [selectId, selectShape] = useState(null);
 
   useEffect(() => {
+    if(!polygon){
+      return
+    }
+   
     callBack(polygon);
     setPoints([]);
   }, [polygon]);
 
   const listener = (e) => {
-    // console.log(e);
-    let length = points.length;
     setPoints((points) => {
       points.pop();
       points.pop();
@@ -25,25 +27,9 @@ export const PolygonConstructor = ({ scale, callBack }) => {
     });
     setnextPoint([]);
   };
-  useEffect(() => {
-    // const listener = (e) => {
-    //   // console.log(e);
-    //   let length = points.length;
-    //   setPoints((points) => {
-    //     points.pop();
-    //     points.pop();
-    //     return points;
-    //   });
-    //   setnextPoint([]);
-    // };
-
-    document.addEventListener("keydown", listener);
-
-    return () => {
-      document.removeEventListener("keydown", listener);
-    };
-  }, []);
+  
   const handleClick = (e) => {
+    isMultiple?isEditing?()=>{return}:setIsComplete(false):()=>{return};
     if (!isComplete) {
       console.log(e);
       let pos = e.evt;
@@ -72,7 +58,6 @@ export const PolygonConstructor = ({ scale, callBack }) => {
 
   // when circle click closed the line
   const handleClose = (e) => {
-    document.removeEventListener("keydown", listener);
     setPolygon({
       id: Date.now(),
       points: points.concat({
@@ -87,6 +72,14 @@ export const PolygonConstructor = ({ scale, callBack }) => {
     console.log("******** Polygon Points**********\n");
     console.log(JSON.stringify(points));
   };
+
+  useEffect(() => {
+    document.addEventListener("keydown", listener);
+
+    return () => {
+      document.removeEventListener("keydown", listener);
+    };
+  }, []);
 
   return (
     <>

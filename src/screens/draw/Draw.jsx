@@ -1,66 +1,92 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Stage, Layer } from "react-konva";
 import { Polygon } from "../../components/konva/Polygon";
-// import PolygonConstructor1 from "../../components/konva/PolygonConstructor2.0";
 import { PolygonConstructor } from "../../components/konva/PolygonConstructor";
-import {
-  usePolygon,
-  usePolygonEditor,
-  usePolygonSetter,
-} from "../../components/konva/lib/context/PolyconContextProvider";
 
-export const Draw = ({ isMultiple }) => {
-  const [polygons, setPolygons] = useState([]);
+
+
+export const Draw = ({ polygons, isMultiple, callBack }) => {
+  const [shouldUpdate, setUpdate] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
+  const [isEnable, setIsEnable] = useState(false)
+  const [newPolygons, setPolygons] = useState(polygons?polygons:[]);
   const [selectedId, selectShape] = useState(null);
-  const [isUpdate, setIsupdate] = useState(false);
-  const editPolygon = usePolygonEditor();
-  console.log("polygons", polygons);
 
   useEffect(() => {
-    setIsupdate(true);
-  }, [polygons]);
+    // callBack(polygons)
+    console.log("newPoints", newPolygons)
+    setUpdate(false)
+    setIsEditing(false)
+    selectShape(null);
+  }, [shouldUpdate]);
 
   return (
+    <>
+    <div className="dr-tools-bar">
+    <button onClick={()=>setIsEnable(!isEnable)}><span>{isEnable?"Disable":"Enable"}</span></button>
+    <button disabled={!isEditing} 
+    onClick={()=>{
+      setUpdate(true);
+      setIsEditing(isEditing?false:true)
+      }}>
+        <span>Save</span>
+    </button>
+    </div>
     <Stage width={window.innerWidth} height={window.innerHeight}>
       <Layer>
-        <PolygonConstructor
+        {isEnable && <PolygonConstructor
           scale={1}
+          isMultiple={isMultiple}
+          isEditing={isEditing}
           callBack={(polygon) => {
-            debugger;
             isMultiple
-              ? setPolygons([...polygons, polygon])
+              ? setPolygons([...newPolygons, polygon])
               : setPolygons([polygon]);
-            setIsupdate(true);
           }}
-        />
+        />}
         {isMultiple
-          ? polygons[1] &&
-            polygons.map((polygon, i) => (
+          ? newPolygons[0] &&
+            newPolygons.map((polygon, i) => (
               <Polygon
                 key={i}
+                shouldUpdate={shouldUpdate}
                 isSelected={polygon.id === selectedId}
+                isEditing={isEditing}
                 polygon={polygon}
                 onSelect={() => {
+                  setIsEditing(true)
                   selectShape(polygon.id);
                 }}
-                onChange={(newPoint) => {
-                  setPolygons(editPolygon(newPoint, polygons));
+                onChange={(newPolygon) => {
+                  setPolygons(newPolygons=>{
+                    let tempPolygons= newPolygons
+                    newPolygons.forEach((polygon, i) => {
+                      if(polygon.id===newPolygon.id){
+                        tempPolygons[i] = newPolygon
+                        return tempPolygons;
+                      }   
+                    });
+                    return tempPolygons;
+                  });
                 }}
               />
             ))
-          : polygons[0] && (
+          : newPolygons[0] && (
               <Polygon
+                shouldUpdate={shouldUpdate}
                 isSelected={polygons[0].id === selectedId}
                 polygon={polygons[0]}
                 onSelect={() => {
+                  setIsEditing(true)
                   selectShape(polygons[0].id);
                 }}
-                onChange={(newPoint) => {
-                  setPolygons(editPolygon(newPoint, polygons));
+                onChange={(newPolygon) => {
+                  setPolygons(newPolygon)
                 }}
               />
             )}
       </Layer>
     </Stage>
+    </>
   );
 };

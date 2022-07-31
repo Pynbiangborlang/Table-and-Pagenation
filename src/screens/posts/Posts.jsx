@@ -58,7 +58,9 @@ const Posts = () => {
   useEffect(() => {
     axios.get("https://jsonplaceholder.typicode.com/posts").then((response) => {
       setPosts(response.data);
-    });
+      if(!response.data[0])
+      setCurrentPage(0)
+    }).catch(err=>setCurrentPage(0));
   }, []);
 
   let indexOfLastPost = currentPage * postsPerPage;

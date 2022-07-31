@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Circle, Group, Line } from "react-konva";
-import { usePolygonEditor } from "./lib/context/PolyconContextProvider";
 
-const Anchors = ({ anchors, id, callBack }) => {
+const Anchors = ({ anchors, id, callBack, shouldUpdate }) => {
   const [lines, setLines] = useState(() => {
     let lines = [];
     for (let i = 0; i < anchors.length - 1; i++) {
@@ -49,9 +48,9 @@ const Anchors = ({ anchors, id, callBack }) => {
       newPath.last = [lines[i][1].x, lines[i][1].y];
       newPath.middle = [e.target.attrs.x, e.target.attrs.y];
     }
-
     return newPath;
   };
+
   return (
     <Group>
       {anchors.map((anchor, i) => {
@@ -66,21 +65,29 @@ const Anchors = ({ anchors, id, callBack }) => {
             radius={5}
             stroke="blue"
             draggable
-            onMouseDown={() => setShowPath(true)}
+            // onMouseDown={(e) => setShowPath(true)}
             onDragStart={(e) => {
               console.log("anchor", e);
+              setShowPath(true);
               setPath({ ...showPath(i, e) });
-              // handleDrag({ id: i, x: e.target.attrs.x, y: e.target.attrs.y });
-
-              // callBack({
-              //   id: id,
-              //   point: { id: anchor.id, x: e.evt.offsetX, y: e.evt.offsetY },
-              // });
+            }}
+            onChange={(e)=>{
+              console.log('mouseMove', e)
+              setPath({ ...showPath(i, e) });
             }}
             onDragEnd={(e) => {
+              console.log('end', e)
               setPath({ first: [], middle: [], last: [] });
               setShowPath(false);
               handleDrag({ id: i, x: e.target.attrs.x, y: e.target.attrs.y });
+              let newPolygon = []
+              for(let i=0;i<lines.length;i++){
+                  newPolygon.push({id: anchors[i].id, x: lines[i][0].x, y: lines[i][0].y})
+                   if(lines.length-i===1){
+                      newPolygon.push({id: anchors[i+1].id, x: lines[0][0].x, y: lines[0][0].y})
+                  } 
+              }
+               callBack(newPolygon)
             }}
           />
         );
@@ -93,27 +100,21 @@ const Anchors = ({ anchors, id, callBack }) => {
           lineCap="round"
           lineJoin="round"
           strokeWidth={2}
+          onClick={(e)=>{console.log('line click',e)}}
         />
       ))}
       {shouldShowPath && (
         <Line
           stroke="red"
           points={path.first.concat(path.middle).concat(path.last)}
+          strokeWidth={2}
         />
       )}
     </Group>
   );
 };
-export const Polygon = ({ polygon, isSelected, onChange, onSelect }) => {
-  // debugger;
+export const Polygon = ({ polygon, isSelected, isEditing, shouldUpdate, onChange, onSelect}) => {
   const shapeRef = useRef(null);
-  // useEffect(() => {
-  //   if (isSelected) {
-  //     // we need to attach transformer manually
-  //     trRef.current.nodes([shapeRef.current]);
-  //     trRef.current.getLayer().batchDraw();
-  //   }
-  // }, [isSelected]);
 
   return (
     <>
@@ -143,9 +144,11 @@ export const Polygon = ({ polygon, isSelected, onChange, onSelect }) => {
         )}
         {isSelected && (
           <Anchors
+          shouldUpdate={shouldUpdate}
+            isEditing={isEditing}
             anchors={polygon.points}
             id={polygon.id}
-            callBack={(newpoint) => onChange(newpoint)}
+            callBack={(newPolygon) => onChange(newPolygon)}
           />
         )}
       </Group>

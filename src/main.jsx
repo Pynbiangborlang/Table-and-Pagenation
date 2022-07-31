@@ -14,7 +14,6 @@ import { Draw } from "./screens/draw/Draw";
 import { Gallery } from "./screens/galary/Gallery";
 import { LearningSwr } from "./screens/swr/LearningSwr";
 import { Todos } from "./screens/swr/Todos";
-import { PolyconContextProvider } from "./components/konva/lib/context/PolyconContextProvider";
 
 // @ts-ignore
 ReactDOM.render(
@@ -37,15 +36,7 @@ ReactDOM.render(
         <Route path="/canvasshapes" element={<App />} />
         <Route path="/imageandsvg" element={<ImageAndSvg />} />
         <Route path="/img" element={<Canvas />} />
-
-        <Route
-          path="/draw"
-          element={
-            <PolyconContextProvider>
-              <Draw isMultiple={false} />
-            </PolyconContextProvider>
-          }
-        />
+        <Route path="/draw" element={<Draw polygons={null} isMultiple={true} /> }/>
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/todos" element={<LearningSwr />} />
         <Route path="/addtodos" element={<Todos />} />
