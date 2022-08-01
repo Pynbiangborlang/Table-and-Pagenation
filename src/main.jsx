@@ -34,7 +34,7 @@ ReactDOM.render(
         <Route path="/canvasshapes" element={<App />} />
         <Route path="/imageandsvg" element={<ImageAndSvg />} />
         <Route path="/img" element={<Canvas />} />
-        <Route path="/draw" element={<Drawing /> }/>
+        <Route path="/draw" element={<Drawing />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/todos" element={<LearningSwr />} />
         <Route path="/addtodos" element={<Todos />} />

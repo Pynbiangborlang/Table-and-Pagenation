@@ -1,8 +1,13 @@
 import React, { useRef, useState, useEffect } from "react";
 import Konva from "konva";
-import { Circle, Line, Rect} from "react-konva";
+import { Circle, Line, Rect } from "react-konva";
 
-export const PolygonConstructor = ({ scale, callBack, isMultiple, isEditing }) => {
+export const PolygonConstructor = ({
+  scale,
+  callBack,
+  isMultiple,
+  isEditing,
+}) => {
   let newScale = scale ? scale : 1;
   const [nextPoint, setnextPoint] = useState([0, 0]);
   const [points, setPoints] = useState([]);
@@ -10,30 +15,36 @@ export const PolygonConstructor = ({ scale, callBack, isMultiple, isEditing }) =
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    if(!polygon){
-      return
+    if (!polygon) {
+      return;
     }
-   
+
     callBack(polygon);
     setPoints([]);
-    return()=>{
-
-    }
+    return () => {};
   }, [polygon]);
 
   const listener = (e) => {
-    if(e.key==="Escape"){
-    setPoints((points) => {
-      points.pop();
-      points.pop();
-      return points;
-    });
-    setnextPoint([]);
-  }
+    if (e.key === "Escape") {
+      setPoints((points) => {
+        points.pop();
+        points.pop();
+        return points;
+      });
+      setnextPoint([]);
+    }
   };
-  
+
   const handleClick = (e) => {
-    isMultiple?isEditing?()=>{return}:setIsComplete(false):()=>{return};
+    isMultiple
+      ? isEditing
+        ? () => {
+            return;
+          }
+        : setIsComplete(false)
+      : () => {
+          return;
+        };
     if (!isComplete) {
       console.log(e);
       let pos = e.evt;

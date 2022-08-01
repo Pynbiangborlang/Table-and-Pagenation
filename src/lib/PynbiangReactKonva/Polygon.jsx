@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Circle, Group, Line } from "react-konva";
 
-const Anchors = ({ anchors, id, callBack}) => {
+const Anchors = ({ anchors, id, callBack }) => {
   const [lines, setLines] = useState(() => {
     let lines = [];
     for (let i = 0; i < anchors.length - 1; i++) {
@@ -73,14 +73,22 @@ const Anchors = ({ anchors, id, callBack}) => {
               setPath({ first: [], middle: [], last: [] });
               setShowPath(false);
               handleDrag({ id: i, x: e.target.attrs.x, y: e.target.attrs.y });
-              let newPolygon = []
-              for(let i=0;i<lines.length;i++){
-                  newPolygon.push({id: anchors[i].id, x: lines[i][0].x, y: lines[i][0].y})
-                   if(lines.length-i===1){
-                      newPolygon.push({id: anchors[i+1].id, x: lines[0][0].x, y: lines[0][0].y})
-                  } 
+              let newPolygon = [];
+              for (let i = 0; i < lines.length; i++) {
+                newPolygon.push({
+                  id: anchors[i].id,
+                  x: lines[i][0].x,
+                  y: lines[i][0].y,
+                });
+                if (lines.length - i === 1) {
+                  newPolygon.push({
+                    id: anchors[i + 1].id,
+                    x: lines[0][0].x,
+                    y: lines[0][0].y,
+                  });
+                }
               }
-               callBack({id: id, points: newPolygon})
+              callBack({ id: id, points: newPolygon });
             }}
           />
         );
@@ -93,7 +101,9 @@ const Anchors = ({ anchors, id, callBack}) => {
           lineCap="round"
           lineJoin="round"
           strokeWidth={2}
-          onClick={(e)=>{console.log('line click',e)}}
+          onClick={(e) => {
+            console.log("line click", e);
+          }}
         />
       ))}
       {shouldShowPath && (
@@ -106,7 +116,13 @@ const Anchors = ({ anchors, id, callBack}) => {
     </Group>
   );
 };
-export const Polygon = ({ polygon, isSelected, isEditing, onChange, onSelect}) => {
+export const Polygon = ({
+  polygon,
+  isSelected,
+  isEditing,
+  onChange,
+  onSelect,
+}) => {
   const shapeRef = useRef(null);
 
   return (
