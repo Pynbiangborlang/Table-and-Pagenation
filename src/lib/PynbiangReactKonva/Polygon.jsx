@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Circle, Group, Line } from "react-konva";
 
-const Anchors = ({ anchors, id, callBack, shouldUpdate }) => {
+const Anchors = ({ anchors, id, callBack}) => {
   const [lines, setLines] = useState(() => {
     let lines = [];
     for (let i = 0; i < anchors.length - 1; i++) {
@@ -65,18 +65,11 @@ const Anchors = ({ anchors, id, callBack, shouldUpdate }) => {
             radius={5}
             stroke="blue"
             draggable
-            // onMouseDown={(e) => setShowPath(true)}
             onDragStart={(e) => {
-              console.log("anchor", e);
               setShowPath(true);
               setPath({ ...showPath(i, e) });
             }}
-            onChange={(e)=>{
-              console.log('mouseMove', e)
-              setPath({ ...showPath(i, e) });
-            }}
             onDragEnd={(e) => {
-              console.log('end', e)
               setPath({ first: [], middle: [], last: [] });
               setShowPath(false);
               handleDrag({ id: i, x: e.target.attrs.x, y: e.target.attrs.y });
@@ -87,7 +80,7 @@ const Anchors = ({ anchors, id, callBack, shouldUpdate }) => {
                       newPolygon.push({id: anchors[i+1].id, x: lines[0][0].x, y: lines[0][0].y})
                   } 
               }
-               callBack(newPolygon)
+               callBack({id: id, points: newPolygon})
             }}
           />
         );
@@ -96,7 +89,7 @@ const Anchors = ({ anchors, id, callBack, shouldUpdate }) => {
         <Line
           key={i}
           points={line.flatMap((point) => [point.x, point.y])}
-          stroke="blue"
+          stroke="red"
           lineCap="round"
           lineJoin="round"
           strokeWidth={2}
@@ -105,7 +98,7 @@ const Anchors = ({ anchors, id, callBack, shouldUpdate }) => {
       ))}
       {shouldShowPath && (
         <Line
-          stroke="red"
+          stroke="blue"
           points={path.first.concat(path.middle).concat(path.last)}
           strokeWidth={2}
         />
@@ -113,7 +106,7 @@ const Anchors = ({ anchors, id, callBack, shouldUpdate }) => {
     </Group>
   );
 };
-export const Polygon = ({ polygon, isSelected, isEditing, shouldUpdate, onChange, onSelect}) => {
+export const Polygon = ({ polygon, isSelected, isEditing, onChange, onSelect}) => {
   const shapeRef = useRef(null);
 
   return (
@@ -144,7 +137,6 @@ export const Polygon = ({ polygon, isSelected, isEditing, shouldUpdate, onChange
         )}
         {isSelected && (
           <Anchors
-          shouldUpdate={shouldUpdate}
             isEditing={isEditing}
             anchors={polygon.points}
             id={polygon.id}

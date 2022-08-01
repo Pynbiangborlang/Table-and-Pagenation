@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import Konva from "konva";
-import { Circle, Line, Rect, Transformer, Shape } from "react-konva";
+import { Circle, Line, Rect} from "react-konva";
 
 export const PolygonConstructor = ({ scale, callBack, isMultiple, isEditing }) => {
   let newScale = scale ? scale : 1;
@@ -8,7 +8,6 @@ export const PolygonConstructor = ({ scale, callBack, isMultiple, isEditing }) =
   const [points, setPoints] = useState([]);
   const [polygon, setPolygon] = useState();
   const [isComplete, setIsComplete] = useState(false);
-  const [selectId, selectShape] = useState(null);
 
   useEffect(() => {
     if(!polygon){
@@ -17,15 +16,20 @@ export const PolygonConstructor = ({ scale, callBack, isMultiple, isEditing }) =
    
     callBack(polygon);
     setPoints([]);
+    return()=>{
+
+    }
   }, [polygon]);
 
   const listener = (e) => {
+    if(e.key==="Escape"){
     setPoints((points) => {
       points.pop();
       points.pop();
       return points;
     });
     setnextPoint([]);
+  }
   };
   
   const handleClick = (e) => {
@@ -33,8 +37,6 @@ export const PolygonConstructor = ({ scale, callBack, isMultiple, isEditing }) =
     if (!isComplete) {
       console.log(e);
       let pos = e.evt;
-      console.log("nga dei u click function");
-      console.log(JSON.stringify(nextPoint));
       setPoints([
         ...points,
         {
@@ -43,7 +45,6 @@ export const PolygonConstructor = ({ scale, callBack, isMultiple, isEditing }) =
           y: pos.offsetY * newScale,
         },
       ]);
-      console.log(points);
     }
   };
 

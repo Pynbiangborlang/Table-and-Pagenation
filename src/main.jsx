@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
-import { UseContextComponent } from "./components/usecontext/UseContextComponent";
 import Posts from "./screens/posts/Posts";
 // import "./components/hooks/UseReducerHook";
 import User from "./screens/usertable/User";
@@ -9,8 +8,7 @@ import App from "./screens/App";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import ImageAndSvg from "./components/konva/ImageAndSvg";
 import { Canvas } from "./screens/canvas";
-import { PolygonConstructor } from "./components/konva/PolygonConstructor";
-import { Draw } from "./screens/draw/Draw";
+import { Drawing } from "./screens/draw/Drawing";
 import { Gallery } from "./screens/galary/Gallery";
 import { LearningSwr } from "./screens/swr/LearningSwr";
 import { Todos } from "./screens/swr/Todos";
@@ -36,7 +34,7 @@ ReactDOM.render(
         <Route path="/canvasshapes" element={<App />} />
         <Route path="/imageandsvg" element={<ImageAndSvg />} />
         <Route path="/img" element={<Canvas />} />
-        <Route path="/draw" element={<Draw polygons={null} isMultiple={true} /> }/>
+        <Route path="/draw" element={<Drawing /> }/>
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/todos" element={<LearningSwr />} />
         <Route path="/addtodos" element={<Todos />} />

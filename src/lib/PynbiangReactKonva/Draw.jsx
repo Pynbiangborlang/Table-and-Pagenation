@@ -1,11 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Stage, Layer } from "react-konva";
-import { Polygon } from "../../components/konva/Polygon";
-import { PolygonConstructor } from "../../components/konva/PolygonConstructor";
+import { Polygon } from "./Polygon";
+import { PolygonConstructor } from "./PolygonConstructor";
 
-
-
-export const Draw = ({ polygons, isMultiple, callBack }) => {
+export const Draw = ({ polygons, isMultiple, callBack, ...props }) => {
   const [shouldUpdate, setUpdate] = useState(false)
   const [isEditing, setIsEditing] = useState(false);
   const [isEnable, setIsEnable] = useState(false)
@@ -18,7 +16,22 @@ export const Draw = ({ polygons, isMultiple, callBack }) => {
     setUpdate(false)
     setIsEditing(false)
     selectShape(null);
+    return()=>{
+
+    }
   }, [shouldUpdate]);
+
+  const updatePolygons=(newPolygon)=>{
+    
+      let tempPolygons= newPolygons
+      newPolygons.forEach((polygon, i) => {
+        if(polygon.id===newPolygon.id){
+          tempPolygons[i] = newPolygon
+          setPolygons(tempPolygons)
+        }   
+      });
+
+  }
 
   return (
     <>
@@ -34,7 +47,7 @@ export const Draw = ({ polygons, isMultiple, callBack }) => {
     </div>
     <Stage width={window.innerWidth} height={window.innerHeight}>
       <Layer>
-        {isEnable && <PolygonConstructor
+        {isEnable && !isEditing && <PolygonConstructor
           scale={1}
           isMultiple={isMultiple}
           isEditing={isEditing}
@@ -49,7 +62,6 @@ export const Draw = ({ polygons, isMultiple, callBack }) => {
             newPolygons.map((polygon, i) => (
               <Polygon
                 key={i}
-                shouldUpdate={shouldUpdate}
                 isSelected={polygon.id === selectedId}
                 isEditing={isEditing}
                 polygon={polygon}
@@ -58,22 +70,12 @@ export const Draw = ({ polygons, isMultiple, callBack }) => {
                   selectShape(polygon.id);
                 }}
                 onChange={(newPolygon) => {
-                  setPolygons(newPolygons=>{
-                    let tempPolygons= newPolygons
-                    newPolygons.forEach((polygon, i) => {
-                      if(polygon.id===newPolygon.id){
-                        tempPolygons[i] = newPolygon
-                        return tempPolygons;
-                      }   
-                    });
-                    return tempPolygons;
-                  });
+                  updatePolygons(newPolygon)
                 }}
               />
             ))
           : newPolygons[0] && (
               <Polygon
-                shouldUpdate={shouldUpdate}
                 isSelected={polygons[0].id === selectedId}
                 polygon={polygons[0]}
                 onSelect={() => {
