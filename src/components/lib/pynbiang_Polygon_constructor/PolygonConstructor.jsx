@@ -17,8 +17,8 @@ const Anchors = ({ anchors, id, callBack }) => {
     return lines;
   });
 
-  const [path, setPath] = useState({ first: [], middle: [], last: [] });
-  const [shouldShowPath, setShowPath] = useState(false);
+  const [path, setPath] = useState([]);
+  const [isDrag, setIsDrag] = useState(false);
   const handleDrag = ({ id, x, y }) => {
     let newlines = lines;
     for (let i = 0; i < lines.length; i++) {
@@ -42,20 +42,27 @@ const Anchors = ({ anchors, id, callBack }) => {
   };
 
   const showPath = (i, e) => {
-    const newPath = path;
+    let newPath = [];
     if (i === 0) {
-      newPath.first = [
+      newPath = [
         lines[lines.length - 1][0].x,
         lines[lines.length - 1][0].y,
+        e.target.attrs.x,
+        e.target.attrs.y,
+        lines[1][0].x,
+        lines[1][0].y,
       ];
-      newPath.last = [lines[1][0].x, lines[1][0].y];
-      newPath.middle = [e.target.attrs.x, e.target.attrs.y];
     } else {
-      newPath.first = [lines[i - 1][0].x, lines[i - 1][0].y];
-      newPath.last = [lines[i][1].x, lines[i][1].y];
-      newPath.middle = [e.target.attrs.x, e.target.attrs.y];
+      newPath = [
+        lines[i - 1][0].x,
+        lines[i - 1][0].y,
+        e.target.attrs.x,
+        e.target.attrs.y,
+        lines[i][1].x,
+        lines[i][1].y,
+      ];
     }
-    return newPath;
+    setPath(newPath);
   };
 
   return (
@@ -73,12 +80,12 @@ const Anchors = ({ anchors, id, callBack }) => {
             stroke="blue"
             draggable
             onDragStart={(e) => {
-              setShowPath(true);
-              setPath({ ...showPath(i, e) });
+              setIsDrag(true);
+              showPath(i, e);
             }}
             onDragEnd={(e) => {
-              setPath({ first: [], middle: [], last: [] });
-              setShowPath(false);
+              setPath([]);
+              setIsDrag(false);
               handleDrag({ id: i, x: e.target.attrs.x, y: e.target.attrs.y });
               let newPolygon = [];
               for (let i = 0; i < lines.length; i++) {
@@ -100,58 +107,67 @@ const Anchors = ({ anchors, id, callBack }) => {
           />
         );
       })}
-      {lines.map((line, i) => (
-        <Line
-          key={i}
-          points={line.flatMap((point) => [point.x, point.y])}
-          stroke="red"
-          lineCap="round"
-          lineJoin="round"
-          strokeWidth={2}
-          onClick={(e) => {
-            console.log("line click", e);
-          }}
-        />
-      ))}
-      {shouldShowPath && (
-        <Line
-          stroke="blue"
-          points={path.first.concat(path.middle).concat(path.last)}
-          strokeWidth={2}
-        />
-      )}
+      {isDrag && <Line stroke="blue" points={path} strokeWidth={2} />}
     </Group>
   );
 };
 export const Polygon = ({ polygon, isSelected, onChange, onSelect }) => {
   const shapeRef = useRef(null);
 
+  const [dragStart, setStart] = useState({});
+
   return (
     <>
-      <Group draggable>
-        {!isSelected && (
-          <Line
-            lineOnly={true}
-            ref={shapeRef}
-            key={polygon.id}
-            onClick={() => {
-              onSelect();
-            }}
-            onTap={onSelect}
-            points={
-              polygon.points
-                ? polygon.points.flatMap((point) => [point.x, point.y])
-                : []
-            }
-            opacity={1}
-            stroke="#df4b26"
-            strokeWidth={2}
-            tension={0}
-            lineCap="round"
-            lineJoin="round"
-            closed
-          />
-        )}
+      <Group
+        draggable
+        // onMouseDown={(e) => {
+        //   console.log(e);
+        //   console.log(`mouse click start`, e.evt);
+        //   console.log("oldpoints", polygon.points);
+        //   setStart({ x: e.target.attrs.x, y: e.target.attrs.y });
+        // }}
+        onDragStart={(e) => {
+          setStart({ x: e.target.attrs.x, y: e.target.attrs.y });
+        }}
+        onDragEnd={(e) => {
+          console.log(`drag end`, e.evt);
+          let dx = e.target.attrs.x - dragStart.x;
+          let dy = e.target.attrs.y - dragStart.y;
+
+          console.log("difference x y", dx + "," + dy);
+          let newpoints = polygon.points.flatMap((point) => [
+            {
+              id: point.id,
+              x: point.x + dx,
+              y: point.y + dy,
+            },
+          ]);
+          console.log("newpoints", newpoints);
+          onChange({ id: polygon.id, points: newpoints });
+        }}
+      >
+        <Line
+          lineOnly={true}
+          ref={shapeRef}
+          key={polygon.id}
+          points={
+            polygon.points
+              ? polygon.points.flatMap((point) => [point.x, point.y])
+              : []
+          }
+          opacity={1}
+          fill={isSelected ? "transparent" : "red"}
+          stroke="#df4b26"
+          strokeWidth={2}
+          tension={0}
+          lineCap="round"
+          lineJoin="round"
+          closed
+          onClick={() => {
+            onSelect();
+          }}
+          onTap={onSelect}
+        />
         {isSelected && (
           <Anchors
             anchors={polygon.points}
@@ -169,27 +185,31 @@ export const PolygonConstructor = ({
   height,
   polygons,
   scale,
-  callBack,
+  setPolygons,
   isMultiple = false,
   ...props
 }) => {
-  console.log("poly");
   let newScale = scale ? scale : 1;
+  const [history, setHistory] = useState({
+    points: [],
+    lastPosition: {},
+  });
   const [isEnable, setIsEnable] = useState(false);
   const [isUpdated, setIsUpdate] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [newPolygons, setPolygons] = useState(polygons ? polygons : []);
+  const [newPolygons, setNewPolygons] = useState(polygons ? polygons : []);
   const [selectedId, selectShape] = useState(null);
-  const [nextPoint, setnextPoint] = useState([0, 0]);
+  const [nextPoint, setnextPoint] = useState([]);
   const [points, setPoints] = useState([]);
   const [isComplete, setIsComplete] = useState(false);
 
-  console.log("newpolygons", newPolygons);
+  console.log(points);
+
   const onSave = () => {
-    if (selectedId || !isUpdated) {
+    if (isComplete && (selectedId || !isUpdated)) {
       selectShape(null);
       setIsEditing(false);
-      callBack(newPolygons);
+      setPolygons(newPolygons);
       setIsUpdate(true);
       console.log("newPoints", newPolygons);
     }
@@ -198,27 +218,29 @@ export const PolygonConstructor = ({
   const onCreatePoint = (e) => {
     isMultiple
       ? setIsComplete(false)
-      : isComplete
+      : isComplete && newPolygons[0]
       ? () => {
           return;
         }
       : () => {};
-    if (!isComplete) {
-      console.log(e);
-      let pos = e.evt;
-      setPoints([
-        ...points,
-        {
-          id: Date.now(),
-          x: pos.offsetX * newScale,
-          y: pos.offsetY * newScale,
-        },
-      ]);
-    }
+
+    let pos = e.evt;
+    setPoints([
+      ...points,
+      {
+        id: Date.now(),
+        x: pos.offsetX * newScale,
+        y: pos.offsetY * newScale,
+      },
+    ]);
   };
 
   const predictNextPoint = (e) => {
     if (isComplete) {
+      setHistory({
+        ...history,
+        lastPosition: { x: e.evt.offsetX, y: e.evt.offsetY },
+      });
       return;
     }
     let pos = e.evt;
@@ -227,7 +249,7 @@ export const PolygonConstructor = ({
 
   const onCompleteShape = (e) => {
     setIsUpdate(false);
-    setPolygons([
+    setNewPolygons([
       ...newPolygons,
       {
         id: Date.now(),
@@ -238,13 +260,17 @@ export const PolygonConstructor = ({
         }),
       },
     ]);
+    setIsComplete(true);
+    setIsEditing(false);
+    setHistory({
+      points: points,
+      lastPosition: { x: nextPoint[0], y: nextPoint[1] },
+    });
     setPoints([]);
     setnextPoint([]);
-    setIsComplete(true);
     onSave();
     console.log("******** Polygon Points**********\n");
     console.log(JSON.stringify(points));
-    console.log("******** Polygons**********\n");
   };
 
   const updatePolygons = (newPolygon) => {
@@ -252,19 +278,27 @@ export const PolygonConstructor = ({
     newPolygons.forEach((polygon, i) => {
       if (polygon.id === newPolygon.id) {
         tempPolygons[i] = newPolygon;
-        setPolygons(tempPolygons);
+        setNewPolygons(tempPolygons);
       }
     });
   };
 
   const listener = (e) => {
-    console.log(e);
     if (e.key.toLowerCase() === "e") {
       setIsEnable(true);
       return;
     }
     if (e.key.toLowerCase() === "z" && e.ctrlKey) {
       if (isComplete) {
+        setIsEditing(false);
+        selectShape(null);
+        setIsComplete(false);
+        setPoints([...history.points]);
+        setnextPoint([history.lastPosition.x, history.lastPosition.y]);
+        setNewPolygons((newPolygons) => {
+          newPolygons.pop();
+          return [...newPolygons];
+        });
         return;
       }
       setPoints((points) => {
@@ -291,9 +325,9 @@ export const PolygonConstructor = ({
           arr.pop();
         }
       });
-      debugger;
-      setPolygons([...arr]);
+      setNewPolygons([...arr]);
       onSave();
+      !isMultiple ? (isComplete ? setIsComplete(false) : () => {}) : () => {};
     }
 
     e.preventDefault();
@@ -314,83 +348,79 @@ export const PolygonConstructor = ({
 
   return (
     <>
-      <Stage width={width} height={height}>
-        <Layer>
-          {props.imageURL && (
-            <URLImage
-              image={{
-                url: "https://www.kindpng.com/picc/m/252-2524695_dummy-profile-image-jpg-hd-png-download.png",
-                width: width,
-                height: height,
+      {props.imageURL && (
+        <URLImage
+          image={{
+            url: props.imageURL,
+            width: width,
+            height: height,
+          }}
+        />
+      )}
+      {!isEditing && isEnable && !isComplete && (
+        <Rect
+          x={0}
+          y={0}
+          width={window.innerWidth}
+          height={window.innerHeight}
+          onClick={onCreatePoint}
+          onMouseMove={predictNextPoint}
+        />
+      )}
+      <Line
+        opacity={1}
+        points={points.flatMap((point) => [point.x, point.y]).concat(nextPoint)}
+        stroke="#df4b26"
+        strokeWidth={2}
+        tension={0}
+        lineCap="round"
+        lineJoin="round"
+        closed={isComplete}
+      />
+
+      {points[0] && !isComplete && (
+        <Circle
+          x={points[0].x}
+          y={points[0].y}
+          radius={10}
+          stroke="black"
+          onClick={onCompleteShape}
+          onMouseOver={(e) => e.target.setFill("green")}
+          onMouseOut={(e) => e.target.setFill("transparent")}
+          opacity={0.8}
+        />
+      )}
+
+      {isMultiple
+        ? newPolygons[0] &&
+          newPolygons.map((polygon, i) => (
+            <Polygon
+              key={i}
+              isSelected={polygon.id === selectedId}
+              polygon={polygon}
+              onSelect={() => {
+                setIsEditing(true);
+                selectShape(polygon.id);
+              }}
+              onChange={(newPolygon) => {
+                updatePolygons(newPolygon);
+              }}
+            />
+          ))
+        : newPolygons[0] && (
+            <Polygon
+              isSelected={newPolygons[0].id === selectedId}
+              polygon={newPolygons[0]}
+              onSelect={() => {
+                setIsEditing(true);
+                selectShape(newPolygons[0].id);
+              }}
+              onChange={(newPolygon) => {
+                // setNewPolygons([newPolygon]);
+                setHistory({ points: newPolygon.points, lastPosition: {} });
               }}
             />
           )}
-          {!isEditing && isEnable && (
-            <Rect
-              x={0}
-              y={0}
-              width={window.innerWidth}
-              height={window.innerHeight}
-              onClick={onCreatePoint}
-              onMouseMove={predictNextPoint}
-            />
-          )}
-          <Line
-            opacity={1}
-            points={points
-              .flatMap((point) => [point.x, point.y])
-              .concat(nextPoint)}
-            stroke="#df4b26"
-            strokeWidth={2}
-            tension={0}
-            lineCap="round"
-            lineJoin="round"
-            closed={isComplete}
-          />
-
-          {points[0] && !isComplete && (
-            <Circle
-              x={points[0].x}
-              y={points[0].y}
-              radius={10}
-              stroke="black"
-              onClick={onCompleteShape}
-              onMouseOver={(e) => e.target.setFill("green")}
-              onMouseOut={(e) => e.target.setFill("transparent")}
-            />
-          )}
-
-          {isMultiple
-            ? newPolygons[0] &&
-              newPolygons.map((polygon, i) => (
-                <Polygon
-                  key={i}
-                  isSelected={polygon.id === selectedId}
-                  polygon={polygon}
-                  onSelect={() => {
-                    setIsEditing(true);
-                    selectShape(polygon.id);
-                  }}
-                  onChange={(newPolygon) => {
-                    updatePolygons(newPolygon);
-                  }}
-                />
-              ))
-            : newPolygons[0] && (
-                <Polygon
-                  isSelected={polygons[0].id === selectedId}
-                  polygon={polygons[0]}
-                  onSelect={() => {
-                    setIsEditing(true);
-                    selectShape(polygons[0].id);
-                  }}
-                  onChange={(newPolygon) => {
-                    setPolygons(newPolygon);
-                  }}
-                />
-              )}
-        </Layer>
-      </Stage>
     </>
   );
 };

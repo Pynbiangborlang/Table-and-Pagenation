@@ -19,7 +19,7 @@ app.use(
 let todos = [{ id: 1, name: "task 1" }];
 
 app.post("/api/todo", (req, res) => {
-  console.log(req);
+  console.log(req.body);
   todos = [...todos, req.body.todo];
   res.json(todos);
   res.end();
