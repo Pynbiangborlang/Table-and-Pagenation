@@ -80,15 +80,15 @@ const Anchors = ({ polygon, id, callBack }) => {
             }}
             onDragMove={(e) => {
               handleDrag({ id: i, x: e.target.attrs.x, y: e.target.attrs.y });
-              let newPolygon = [];
+              let newAnchors = [];
               for (let i = 0; i < lines.length; i++) {
-                newPolygon.push({
+                newAnchors.push({
                   id: anchors[i].id,
                   x: lines[i][0].x,
                   y: lines[i][0].y,
                 });
                 if (lines.length - i === 1) {
-                  newPolygon.push({
+                  newAnchors.push({
                     id: anchors[i + 1].id,
                     x: lines[0][0].x,
                     y: lines[0][0].y,
@@ -100,22 +100,22 @@ const Anchors = ({ polygon, id, callBack }) => {
                 id: id,
                 x: polygon.x,
                 y: polygon.y,
-                points: newPolygon,
+                points: newAnchors,
               });
             }}
             onDragEnd={(e) => {
               setPath([]);
               setIsDrag(false);
               handleDrag({ id: i, x: e.target.attrs.x, y: e.target.attrs.y });
-              let newPolygon = [];
+              let newAnchors = [];
               for (let i = 0; i < lines.length; i++) {
-                newPolygon.push({
+                newAnchors.push({
                   id: anchors[i].id,
                   x: lines[i][0].x,
                   y: lines[i][0].y,
                 });
                 if (lines.length - i === 1) {
-                  newPolygon.push({
+                  newAnchors.push({
                     id: anchors[i + 1].id,
                     x: lines[0][0].x,
                     y: lines[0][0].y,
@@ -126,7 +126,7 @@ const Anchors = ({ polygon, id, callBack }) => {
                 id: id,
                 x: polygon.x,
                 y: polygon.y,
-                points: newPolygon,
+                points: newAnchors,
               });
             }}
           />
@@ -148,18 +148,12 @@ export const Polygon = ({ polygon, isSelected, onChange, onSelect }) => {
         x={start.x?.x}
         y={start.x?.y}
         draggable
-        onDragMove={
-          isSelected
-            ? () => {
-                return;
-              }
-            : (e) => {
-                setStart({
-                  x: e.target.attrs.x,
-                  y: e.target.attrs.y,
-                });
-              }
-        }
+        onDragMove={(e) => {
+          setStart({
+            x: e.target.attrs.x,
+            y: e.target.attrs.y,
+          });
+        }}
         onDragEnd={(e) => {
           setStart({ x: e.target.attrs.x, y: e.target.attrs.y });
           onChange({ ...polygon, x: e.target.attrs.x, y: e.target.attrs.y });
@@ -203,7 +197,7 @@ export const PolygonConstructor = ({
   polygons,
   scale,
   setPolygons,
-  isMultiple = false,
+  isMultiple = true,
   ...props
 }) => {
   let newScale = scale ? scale : 1;
@@ -261,7 +255,7 @@ export const PolygonConstructor = ({
 
   const onCompleteShape = (e) => {
     setIsUpdate(false);
-    setIsComplete(true);
+    // setIsComplete(true);
     setIsEditing(false);
     isMultiple
       ? setNewPolygons([
@@ -294,6 +288,11 @@ export const PolygonConstructor = ({
     onSave();
     console.log("******** Polygon Points**********\n");
     console.log(JSON.stringify(points));
+    if (!isMultiple) {
+      setIsComplete(true);
+    } else {
+      setIsComplete(false);
+    }
   };
 
   const updatePolygons = (newPolygon) => {
@@ -304,31 +303,49 @@ export const PolygonConstructor = ({
         setNewPolygons([...tempPolygons]);
       }
     });
+    setIsUpdate(false);
   };
 
-  const listener = (e) => {
+  const keyListener = (e) => {
     if (e.key.toLowerCase() === "e") {
+      console.log("Enabled");
       setIsEnable(true);
       return;
     }
     if (e.key.toLowerCase() === "z" && e.ctrlKey) {
-      if (isComplete) {
+      if (points[0]) {
+        setPoints((points) => {
+          points.pop();
+          return [...points];
+        });
+        return;
+      }
+      if ((isComplete && !isMultiple) || (!isComplete && isMultiple)) {
         setIsEditing(false);
         selectShape(null);
         setIsComplete(false);
         setPoints([...history.points]);
-        setnextPoint([history.lastPosition.x, history.lastPosition.y]);
+        setnextPoint([history.lastPosition.x?.x, history.lastPosition.y?.y]);
+        let len = newPolygons.length;
         newPolygons[0] &&
           setNewPolygons((newPolygons) => {
             newPolygons.pop();
             return [...newPolygons];
           });
-        return;
+
+        if (len > 1) {
+          let plen = newPolygons[len - 1].points.length;
+          setHistory({
+            points: newPolygons[len - 2].points,
+            lastPosition: {
+              x: newPolygons[len - 1].points[plen - 2].x,
+              y: newPolygons[len - 1].points[plen - 2].y,
+            },
+          });
+        } else {
+          setHistory({ points: [], lastPosition: {} });
+        }
       }
-      setPoints((points) => {
-        points.pop();
-        return [...points];
-      });
     }
 
     if (e.key === "Enter") {
@@ -360,9 +377,9 @@ export const PolygonConstructor = ({
   };
 
   useEffect(() => {
-    document.addEventListener("keydown", listener);
+    document.addEventListener("keydown", keyListener);
     return () => {
-      document.removeEventListener("keydown", listener);
+      document.removeEventListener("keydown", keyListener);
     };
   });
 
@@ -424,6 +441,7 @@ export const PolygonConstructor = ({
                 selectShape(id);
               }}
               onChange={(newPolygon) => {
+                console.log("changed");
                 updatePolygons(newPolygon);
               }}
             />
@@ -441,8 +459,12 @@ export const PolygonConstructor = ({
                 selectShape(id);
               }}
               onChange={(newPolygon) => {
+                setIsUpdate(false);
                 setNewPolygons([newPolygon]);
-                setHistory({ points: newPolygon.points, lastPosition: {} });
+                setHistory({
+                  points: [...newPolygon.points],
+                  lastPosition: { x: newPolygon.x?.x, y: newPolygon.y?.y },
+                });
               }}
             />
           )}

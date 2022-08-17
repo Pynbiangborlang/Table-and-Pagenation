@@ -7,10 +7,11 @@ import {
   useReactTable,
   getCoreRowModel,
   getFilteredRowModel,
+  filterFns,
 } from "@tanstack/react-table";
 import { DebouncedInput } from "./DebouncedInput";
 
-const ReactTable = ({ columns, data, className = "" }) => {
+const ReactTable = ({ columns, data, className = "", ...props }) => {
   const [globalFilter, setGlobalFilter] = useState("");
 
   const table = useReactTable({
@@ -19,6 +20,7 @@ const ReactTable = ({ columns, data, className = "" }) => {
     state: {
       globalFilter,
     },
+    onGlobalFilterChange: setGlobalFilter,
     getFilteredRowModel: getFilteredRowModel(),
     getCoreRowModel: getCoreRowModel(),
   });
@@ -32,17 +34,29 @@ const ReactTable = ({ columns, data, className = "" }) => {
     // @ts-ignore
     XLSX.writeFile(wb, "Report.xlsb");
   };
-
+  console.log("table", table.getFilteredRowModel());
   return (
     <>
-      <DebouncedInput
-        value={globalFilter ?? ""}
-        onChange={(value) => setGlobalFilter(value)}
-        className="p-2 font-lg shadow border border-block"
-        placeholder="Search all columns..."
-      />
-      <button onClick={exportFile}>Export</button>
-      <table className={`table table-striped ${className}`}>
+      {props?.isFilterable && (
+        <div className="search-input">
+          <DebouncedInput
+            value=""
+            onChange={(value) => props.filter(value)}
+            className="rt-filter-input"
+            placeholder={
+              props.inputPlaceHolder
+                ? props.inputPlaceHolder
+                : "Search all columns..."
+            }
+          />
+        </div>
+      )}
+      {props?.isExportable && (
+        <button className=".rt-export-btn" onClick={exportFile}>
+          {props.exportIcon ? props.exportIcon : "Export"}
+        </button>
+      )}
+      <table className={`react-table border-none ${className}`}>
         <thead>
           <tr>
             {table.getHeaderGroups()[0].headers.map((header) => (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import "./user.css";
-import { Table } from "../../components/table/Table";
+// import { Table } from "../../components/table/Table";
 import ReactTable from "../../components/tanstacktable/ReactTable";
 
 const User = () => {
@@ -16,20 +16,29 @@ const User = () => {
   const columns = useMemo(
     () => [
       {
-        header: "Id",
+        id: "Id",
         accessorKey: "id",
       },
       {
-        header: "Name",
+        id: "Name",
         accessorKey: "name",
       },
       {
-        header: "UserName",
+        id: "UserName",
         accessorKey: "username",
       },
       {
-        header: "Email",
+        id: "Email",
         accessorKey: "email",
+      },
+      {
+        id: "Actions",
+        cell: (row) => (
+          <>
+            <button>Delete</button>
+            <button>Edit</button>
+          </>
+        ),
       },
     ],
     []
@@ -45,7 +54,15 @@ const User = () => {
         showGlobalFilter={true}
         className=""
       /> */}
-      <ReactTable columns={columns} data={data} />
+      <ReactTable
+        columns={columns}
+        data={data}
+        filter={(value) => {
+          console.log("filter from backend", value);
+        }}
+        isFilterable={true}
+        isExportable={true}
+      />
     </>
   );
 };

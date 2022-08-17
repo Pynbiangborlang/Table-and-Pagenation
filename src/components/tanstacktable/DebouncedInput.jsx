@@ -5,7 +5,7 @@ export const DebouncedInput = ({ value, onChange, className, placeholder }) => {
   const [inputValue, setInputValue] = useState(value || "");
   const debounced = useDebouncedCallback((value) => {
     onChange(value);
-  }, 500);
+  }, 200);
   return (
     <input
       value={inputValue}
